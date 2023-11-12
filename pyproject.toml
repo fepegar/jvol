@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jvol"
+version = "0.1.0"
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy",
+    "Pillow",
+    "scipy",
+]
+
+# Define extra dependencies
+[project.optional-dependencies]
+docs = [
+    "mkdocs-material",
+]
