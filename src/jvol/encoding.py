@@ -30,12 +30,16 @@ def encode_array(
     return values, counts
 
 
+def get_distance_to_origin(indices: TypeBlockIndices) -> npt.NDArray[np.float64]:
+    return np.linalg.norm(indices, axis=1)
+
+
 def get_scan_indices_block(block_shape: TypeShapeBlockNumpy) -> TypeBlockIndices:
     block_shape_tuple = tuple(int(b) for b in block_shape)
     indices_list = list(np.ndindex(block_shape_tuple))
     indices_array = np.array(indices_list)
-    norms = np.linalg.norm(indices_array, axis=1)
-    scan_indices = indices_array[np.argsort(norms)]
+    distances_to_origin = get_distance_to_origin(indices_array)
+    scan_indices = indices_array[np.argsort(distances_to_origin)]
     return scan_indices.astype(np.uint8)
 
 
