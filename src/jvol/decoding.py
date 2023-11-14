@@ -5,6 +5,7 @@ import numpy as np
 from numpy import generic
 import numpy.typing as npt
 from einops import rearrange
+from loguru import logger
 from scipy.fft import idctn
 
 from .encoding import get_scan_indices_block
@@ -27,18 +28,41 @@ def decode_array(
     slope: float,
     dtype: npt.DTypeLike,
 ) -> npt.NDArray[Any]:
+    logger.debug(f"Decoding {len(rle_values)} RLE values...")
     scanned_sequence = np.repeat(rle_values, rle_counts)
+
+    logger.debug(f"Reconstructing blocks from {len(scanned_sequence)} components...")
     block_shape_array = np.array(quantization_block.shape, np.uint8)
     scanning_indices = get_scan_indices_block(block_shape_array)
     dct_blocks = sequence_to_blocks(scanned_sequence, scanning_indices)
+
+    logger.debug(f"Computing inverse cosine transform of {len(dct_blocks)} blocks...")
     array_raw = inverse_cosine_transform(
         dct_blocks,
         quantization_block,
         target_shape,
     )
+    logger.debug("Rescaling array...")
     array_rescaled = rescale_array_for_decoding(array_raw, intercept, slope)
+
+    logger.debug("Cropping array if necessary...")
     array_cropped = crop_array(array_rescaled, target_shape)
-    return array_cropped.astype(dtype)
+
+    iinfo = np.iinfo(dtype)
+    if iinfo.min < array_cropped.min() or iinfo.max > array_cropped.max():
+        logger.warning(
+            f"Array is outside of bounds of {dtype}"
+            f" ([{iinfo.min}, {iinfo.max}])):"
+            f" [{array_cropped.min()}, {array_cropped.max()}]"
+        )
+        logger.debug("Clipping array...")
+        array_cropped = np.clip(array_cropped, iinfo.min, iinfo.max)
+
+    logger.debug(f"Casting array to {repr(dtype)} if needed...")
+    array_cast = array_cropped.astype(dtype)
+
+    logger.success("Decoded array")
+    return array_cast
 
 
 def rescale_array_for_decoding(

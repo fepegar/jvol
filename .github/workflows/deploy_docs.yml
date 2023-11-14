@@ -1,5 +1,6 @@
 name: Deploy documentation to GitHub Pages
 
+# Enabling manual triggers
 on:
   push:
     branches:

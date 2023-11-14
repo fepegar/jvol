@@ -8,8 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.8"
 
 dependencies = [
-    "numpy",
-    "Pillow",
+    "einops",
     "scipy",
 ]
 
@@ -18,3 +17,24 @@ dependencies = [
 docs = [
     "mkdocs-material",
 ]
+
+io = [
+    "itk",
+    "loguru",
+    "typer[all]",
+]
+
+tests = [
+    "jvol[io]",
+    "pytest",
+]
+
+dev = [
+    "jvol[docs,tests]",
+    "black",
+    "pre-commit",
+    "pyright"
+]
+
+[project.scripts]
+jvol = "jvol.cli.convert:app"

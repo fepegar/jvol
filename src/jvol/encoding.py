@@ -4,6 +4,7 @@ import numpy as np
 from numpy import generic
 import numpy.typing as npt
 from einops import rearrange
+from loguru import logger
 from scipy.fft import dctn
 
 
@@ -18,15 +19,23 @@ def encode_array(
     array: npt.NDArray[DType],
     quantization_table: npt.NDArray[np.float32],
 ) -> tuple[TypeRleValues, TypeRleCounts]:
+    logger.debug(f"Encoding array of shape {array.shape}...")
+
     block_shape_tuple = quantization_table.shape
     block_shape_array = np.array(block_shape_tuple, np.uint8)
     padded_array = pad_array(array, block_shape_array)
+
     blocks = split_into_blocks(padded_array, block_shape_array)
+    logger.debug(f"Array split into {len(blocks)} blocks")
     dct_blocks = cosine_transform(blocks)
     dct_blocks_quantized = quantize(dct_blocks, quantization_table)
+
     scan_indices = get_scan_indices_block(block_shape_array)
     sequence = blocks_to_sequence(dct_blocks_quantized, scan_indices)
+    logger.debug(f"Sequence length: {len(sequence)}")
     values, counts = run_length_encode(sequence)
+    logger.debug(f"Run-length encoded sequence length: {len(values)}")
+
     return values, counts
 
 
@@ -108,10 +117,23 @@ def run_length_encode(
 def pad_array(
     array: npt.NDArray[DType], block_shape: TypeShapeBlockNumpy
 ) -> npt.NDArray[DType]:
-    padding = block_shape - np.array(array.shape) % block_shape
-    padding = [(0, int(p)) for p in padding]
-    padded = np.pad(array, padding, mode="reflect")
-    return padded
+    """Pad array until it's divisible by block size in all dimensions."""
+    block_shape_tuple = tuple(int(b) for b in block_shape)
+    pad_width = []
+    needs_padding = False
+    for i in range(array.ndim):
+        if array.shape[i] % block_shape_tuple[i] == 0:
+            pad_width.append((0, 0))
+        else:
+            pad_width.append(
+                (0, block_shape_tuple[i] - (array.shape[i] % block_shape_tuple[i]))
+            )
+            needs_padding = True
+    if needs_padding:
+        logger.debug(f"Array with shape {array.shape} needs padding: {pad_width}")
+    padded_array = np.pad(array, pad_width)
+    logger.debug(f"Padded array shape: {padded_array.shape}")
+    return padded_array
 
 
 def get_multiplier(
