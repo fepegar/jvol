@@ -6,6 +6,7 @@ import humanize
 from loguru import logger
 
 
+# Adapted from https://stackoverflow.com/a/70059951/3956024
 class timed(ContextDecorator):
     def __init__(self, minimum_unit: str = "milliseconds"):
         self._label = None
