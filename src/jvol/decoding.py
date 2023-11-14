@@ -49,13 +49,12 @@ def decode_array(
     array_cropped = crop_array(array_rescaled, target_shape)
 
     iinfo = np.iinfo(dtype)
-    if iinfo.min < array_cropped.min() or iinfo.max > array_cropped.max():
+    if array_cropped.min() < iinfo.min or array_cropped.max() > iinfo.max:
         logger.warning(
-            f"Array is outside of bounds of {dtype}"
+            f'Array is outside of bounds of data type "{dtype}"'
             f" ([{iinfo.min}, {iinfo.max}])):"
-            f" [{array_cropped.min()}, {array_cropped.max()}]"
+            f" [{array_cropped.min()}, {array_cropped.max()}]. Clipping..."
         )
-        logger.debug("Clipping array...")
         array_cropped = np.clip(array_cropped, iinfo.min, iinfo.max)
 
     logger.debug(f"Casting array to {repr(dtype)} if needed...")
