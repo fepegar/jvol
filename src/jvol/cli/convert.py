@@ -7,8 +7,9 @@ import numpy as np
 import numpy.typing as npt
 import transforms3d
 import typer
-from typing_extensions import Annotated
+from humanize import naturalsize
 from loguru import logger
+from typing_extensions import Annotated
 
 from jvol import open_jvol
 from jvol import save_jvol
@@ -47,18 +48,20 @@ def main(
 
     logger.info(f'Opening "{input_path}"...')
     array, ijk_to_ras = open_image(input_path)
-    logger.success(f'Opened "{input_path}"')
+    logger.debug(f"Array shape: {array.shape}")
+    logger.debug("ijk_to_ras:")
+    for line in str(ijk_to_ras).splitlines():
+        logger.debug(f"  {line}")
+    logger.success(f'Opened "{input_path}" ({naturalsize(input_path.stat().st_size)})')
 
     logger.info(f'Saving "{output_path}"...')
     save_image(array, ijk_to_ras, output_path, quality=quality, block_size=block_size)
-    logger.success(f'Saved "{output_path}"')
+    logger.success(f'Saved "{output_path}" ({naturalsize(output_path.stat().st_size)})')
 
 
 def open_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
-    if path.suffix == ".jvol":
-        return open_jvol(path)
-    else:
-        return open_itk_image(path)
+    _open = open_jvol if path.suffix == ".jvol" else open_itk_image
+    return _open(path)
 
 
 def save_image(

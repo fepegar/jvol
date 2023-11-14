@@ -9,6 +9,7 @@ from loguru import logger
 from scipy.fft import idctn
 
 from .encoding import get_scan_indices_block
+from .timer import timed
 
 
 DType = TypeVar("DType", bound=generic)
@@ -19,6 +20,7 @@ TypeRleValues = npt.NDArray[np.int32]
 TypeRleCounts = npt.NDArray[np.uint32]
 
 
+@timed()
 def decode_array(
     rle_values: npt.NDArray[np.int32],
     rle_counts: npt.NDArray[np.uint32],
@@ -28,42 +30,52 @@ def decode_array(
     slope: float,
     dtype: npt.DTypeLike,
 ) -> npt.NDArray[Any]:
-    logger.debug(f"Decoding {len(rle_values)} RLE values...")
-    scanned_sequence = np.repeat(rle_values, rle_counts)
+    logger.info(f"Decoding {len(rle_values):,} RLE values...")
+    scanned_sequence = run_length_decode(rle_values, rle_counts)
 
-    logger.debug(f"Reconstructing blocks from {len(scanned_sequence)} components...")
+    logger.info(f"Reconstructing blocks from {len(scanned_sequence):,} components...")
     block_shape_array = np.array(quantization_block.shape, np.uint8)
     scanning_indices = get_scan_indices_block(block_shape_array)
     dct_blocks = sequence_to_blocks(scanned_sequence, scanning_indices)
 
-    logger.debug(f"Computing inverse cosine transform of {len(dct_blocks)} blocks...")
+    logger.info(f"Computing inverse cosine transform of {len(dct_blocks):,} blocks...")
     array_raw = inverse_cosine_transform(
         dct_blocks,
         quantization_block,
         target_shape,
     )
-    logger.debug("Rescaling array...")
+    logger.info("Rescaling array intensities...")
     array_rescaled = rescale_array_for_decoding(array_raw, intercept, slope)
 
-    logger.debug("Cropping array if necessary...")
     array_cropped = crop_array(array_rescaled, target_shape)
 
     iinfo = np.iinfo(dtype)
     if array_cropped.min() < iinfo.min or array_cropped.max() > iinfo.max:
         logger.warning(
-            f'Array is outside of bounds of data type "{dtype}"'
-            f" ([{iinfo.min}, {iinfo.max}])):"
-            f" [{array_cropped.min()}, {array_cropped.max()}]. Clipping..."
+            f"Array intensities [{array_cropped.min():.1f}, {array_cropped.max():.1f}]"
+            f' are outside of bounds of data type "{dtype}"'
+            f" [{iinfo.min}, {iinfo.max}] after inverse cosine transform."
+            f" Clipping..."
         )
         array_cropped = np.clip(array_cropped, iinfo.min, iinfo.max)
 
-    logger.debug(f"Casting array to {repr(dtype)} if needed...")
-    array_cast = array_cropped.astype(dtype)
+    if array_cropped.dtype != dtype:
+        logger.info(f'Casting array to data type "{repr(dtype)}"...')
+        array_cropped = array_cropped.astype(dtype)
 
-    logger.success("Decoded array")
-    return array_cast
+    logger.success("Array decoded successfully")
+    return array_cropped
 
 
+@timed()
+def run_length_decode(
+    values: TypeRleValues,
+    counts: TypeRleCounts,
+) -> npt.NDArray[np.int32]:
+    return np.repeat(values, counts)
+
+
+@timed()
 def rescale_array_for_decoding(
     array: npt.NDArray[np.float32],
     intercept: float,
@@ -81,10 +93,14 @@ def crop_array(
     array: npt.NDArray[DType],
     target_shape: TypeShapeArray,
 ) -> npt.NDArray[DType]:
+    if tuple(target_shape) == array.shape:
+        return array
+    logger.info(f"Cropping array from {array.shape} to {target_shape}...")
     i, j, k = target_shape
     return array[:i, :j, :k]
 
 
+@timed()
 def inverse_cosine_transform(
     dct_blocks: npt.NDArray[np.int32],
     quantization_block: npt.NDArray[np.uint16],
@@ -98,7 +114,12 @@ def inverse_cosine_transform(
     block_shape = np.array(quantization_block.shape, np.uint8)
     padded_target_shape = pad_image_shape(target_shape, block_shape)
     num_blocks_ijk = (padded_target_shape / block_shape).astype(int)
-    assert len(blocks) == np.prod(num_blocks_ijk)
+    if len(blocks) != np.prod(num_blocks_ijk):
+        raise RuntimeError(
+            f"Number of blocks ({len(blocks)}) does not match"
+            f" number of blocks ({num_blocks_ijk}) implied by target shape"
+            f" ({num_blocks_ijk}, i.e., {np.prod(num_blocks_ijk)} blocks)"
+        )
     array_reconstructed = rearrange(
         blocks_array,
         "(i1 j1 k1) i2 j2 k2 -> (i1 i2) (j1 j2) (k1 k2)",
@@ -114,9 +135,11 @@ def pad_image_shape(
     block_shape: TypeShapeBlockNumpy,
 ) -> TypeShapeArray:
     padding = block_shape - image_shape % block_shape
+    padding[padding == block_shape] = 0
     return image_shape + padding
 
 
+@timed()
 def sequence_to_blocks(
     sequence: npt.NDArray[DType], indices_block: npt.NDArray[np.uint8]
 ) -> npt.NDArray[DType]:

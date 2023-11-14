@@ -7,6 +7,8 @@ from einops import rearrange
 from loguru import logger
 from scipy.fft import dctn
 
+from .timer import timed
+
 
 DType = TypeVar("DType", bound=generic)
 TypeBlockIndices = npt.NDArray[np.uint8]
@@ -15,26 +17,27 @@ TypeRleValues = npt.NDArray[np.int32]
 TypeRleCounts = npt.NDArray[np.uint32]
 
 
+@timed()
 def encode_array(
     array: npt.NDArray[DType],
     quantization_table: npt.NDArray[np.float32],
 ) -> tuple[TypeRleValues, TypeRleCounts]:
-    logger.debug(f"Encoding array of shape {array.shape}...")
+    logger.info(f"Encoding array of shape {array.shape}...")
 
     block_shape_tuple = quantization_table.shape
     block_shape_array = np.array(block_shape_tuple, np.uint8)
     padded_array = pad_array(array, block_shape_array)
 
     blocks = split_into_blocks(padded_array, block_shape_array)
-    logger.debug(f"Array split into {len(blocks)} blocks")
+    logger.info(f"Array split into {len(blocks):,} blocks")
     dct_blocks = cosine_transform(blocks)
     dct_blocks_quantized = quantize(dct_blocks, quantization_table)
 
     scan_indices = get_scan_indices_block(block_shape_array)
     sequence = blocks_to_sequence(dct_blocks_quantized, scan_indices)
-    logger.debug(f"Sequence length: {len(sequence)}")
+    logger.info(f"Sequence length: {len(sequence):,}")
     values, counts = run_length_encode(sequence)
-    logger.debug(f"Run-length encoded sequence length: {len(values)}")
+    logger.info(f"Run-length encoded sequence length: {len(values):,}")
 
     return values, counts
 
@@ -52,6 +55,7 @@ def get_scan_indices_block(block_shape: TypeShapeBlockNumpy) -> TypeBlockIndices
     return scan_indices.astype(np.uint8)
 
 
+@timed()
 def split_into_blocks(
     array: npt.NDArray[DType],
     block_shape: TypeShapeBlockNumpy,
@@ -67,6 +71,7 @@ def split_into_blocks(
     return blocks
 
 
+@timed()
 def cosine_transform(blocks: npt.ArrayLike) -> npt.NDArray[np.float64]:
     blocks_cast = np.array(blocks, np.float64).copy()
     blocks_cast -= blocks_cast.min()
@@ -77,6 +82,7 @@ def cosine_transform(blocks: npt.ArrayLike) -> npt.NDArray[np.float64]:
     return np.array(dct_blocks)
 
 
+@timed()
 def quantize(
     dct_blocks: npt.NDArray[np.float64],
     quantization_table: npt.NDArray[np.float32],
@@ -85,6 +91,7 @@ def quantize(
     return dct_blocks_quantized.astype(np.int32)
 
 
+@timed()
 def blocks_to_sequence(
     dct_blocks: npt.NDArray[np.int32],
     scan_indices: npt.NDArray[np.uint8],
@@ -97,6 +104,7 @@ def blocks_to_sequence(
     return sequence
 
 
+@timed()
 def run_length_encode(
     sequence: npt.NDArray[np.int32],
 ) -> tuple[npt.NDArray[np.int32], npt.NDArray[np.uint32]]:
@@ -114,6 +122,7 @@ def run_length_encode(
     return values, counts
 
 
+@timed()
 def pad_array(
     array: npt.NDArray[DType], block_shape: TypeShapeBlockNumpy
 ) -> npt.NDArray[DType]:
@@ -130,9 +139,9 @@ def pad_array(
             )
             needs_padding = True
     if needs_padding:
-        logger.debug(f"Array with shape {array.shape} needs padding: {pad_width}")
+        logger.info(f"Array with shape {array.shape} needs padding: {pad_width}")
     padded_array = np.pad(array, pad_width)
-    logger.debug(f"Padded array shape: {padded_array.shape}")
+    logger.info(f"Padded array shape: {padded_array.shape}")
     return padded_array
 
 
