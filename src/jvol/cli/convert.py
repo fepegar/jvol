@@ -84,7 +84,9 @@ def open_itk_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def save_itk_image(array: np.ndarray, ijk_to_ras: np.ndarray, path: Path) -> None:
-    image = itk.image_view_from_array(array.T)
+    logger.debug(f"Array shape: {array.shape}")
+    image = itk.image_view_from_array(array.T.copy())
+    logger.debug(f"Image shape: {image.shape}")
     origin, rotation, spacing = _get_itk_metadata_from_ijk_to_ras(ijk_to_ras)
     image.SetOrigin(origin)
     image.SetDirection(rotation)

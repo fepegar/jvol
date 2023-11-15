@@ -96,10 +96,12 @@ def blocks_to_sequence(
     dct_blocks: npt.NDArray[np.int32],
     scan_indices: npt.NDArray[np.uint8],
 ) -> npt.NDArray[np.int32]:
-    sequence = []
-    for index in scan_indices:
-        sequence.extend(dct_blocks[:, index[0], index[1], index[2]])
-    sequence = np.array(sequence)
+    sequence = np.empty(dct_blocks.size, dtype=np.int32)
+    for i, index in enumerate(scan_indices):
+        scanned = dct_blocks[:, index[0], index[1], index[2]]
+        ini = i * len(dct_blocks)
+        fin = ini + len(dct_blocks)
+        sequence[ini:fin] = scanned
     assert len(sequence) == dct_blocks.size
     return sequence
 
