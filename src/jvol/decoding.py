@@ -20,23 +20,35 @@ TypeRleValues = npt.NDArray[np.int32]
 TypeRleCounts = npt.NDArray[np.uint32]
 
 
-@timed()
+@timed()  # pyright: ignore
 def decode_array(
-    rle_values: npt.NDArray[np.int32],
-    rle_counts: npt.NDArray[np.uint32],
+    dc_rle_values: npt.NDArray[np.int32],
+    dc_rle_counts: npt.NDArray[np.uint32],
+    ac_rle_values: npt.NDArray[np.int32],
+    ac_rle_counts: npt.NDArray[np.uint32],
     quantization_block: npt.NDArray[np.uint16],
     target_shape: TypeShapeArray,
     intercept: float,
     slope: float,
     dtype: npt.DTypeLike,
 ) -> npt.NDArray[Any]:
-    logger.info(f"Decoding {len(rle_values):,} RLE values...")
-    scanned_sequence = run_length_decode(rle_values, rle_counts)
+    logger.info(f"Decoding {len(dc_rle_values):,} DC RLE values...")
+    dc_scanned_sequence = run_length_decode(dc_rle_values, dc_rle_counts)
+    logger.info(f"Decoding {len(ac_rle_values):,} AC RLE values...")
+    ac_scanned_sequence = run_length_decode(ac_rle_values, ac_rle_counts)
 
-    logger.info(f"Reconstructing blocks from {len(scanned_sequence):,} components...")
+    logger.info(
+        f"Reconstructing blocks from {len(dc_scanned_sequence):,} DC components"
+        f" and {len(ac_scanned_sequence):,} AC components..."
+    )
     block_shape_array = np.array(quantization_block.shape, np.uint8)
     scanning_indices = get_scan_indices_block(block_shape_array)
-    dct_blocks = sequence_to_blocks(scanned_sequence, scanning_indices)
+
+    dct_blocks = sequence_to_blocks(
+        dc_scanned_sequence,
+        ac_scanned_sequence,
+        scanning_indices,
+    )
 
     logger.info(f"Computing inverse cosine transform of {len(dct_blocks):,} blocks...")
     array_raw = inverse_cosine_transform(
@@ -67,7 +79,7 @@ def decode_array(
     return array_cropped
 
 
-@timed()
+@timed()  # pyright: ignore
 def run_length_decode(
     values: TypeRleValues,
     counts: TypeRleCounts,
@@ -75,7 +87,7 @@ def run_length_decode(
     return np.repeat(values, counts)
 
 
-@timed()
+@timed()  # pyright: ignore
 def rescale_array_for_decoding(
     array: npt.NDArray[np.float32],
     intercept: float,
@@ -100,7 +112,7 @@ def crop_array(
     return array[:i, :j, :k]
 
 
-@timed()
+@timed()  # pyright: ignore
 def inverse_cosine_transform(
     dct_blocks: npt.NDArray[np.int32],
     quantization_block: npt.NDArray[np.uint16],
@@ -139,9 +151,11 @@ def pad_image_shape(
     return image_shape + padding
 
 
-@timed()
+@timed()  # pyright: ignore
 def sequence_to_blocks(
-    sequence: npt.NDArray[DType], indices_block: npt.NDArray[np.uint8]
+    dc_sequence: npt.NDArray[DType],
+    ac_sequence: npt.NDArray[DType],
+    indices_block: npt.NDArray[np.uint8],
 ) -> npt.NDArray[DType]:
     num_elements_block = len(indices_block)
 
@@ -149,17 +163,17 @@ def sequence_to_blocks(
     assert block_size.is_integer()
     block_size = int(block_size)
 
-    num_blocks = len(sequence) / num_elements_block
-    assert num_blocks.is_integer()
-    num_blocks = int(num_blocks)
+    num_blocks = len(dc_sequence)
 
     block_shape = block_size, block_size, block_size
     blocks_shape = num_blocks, *block_shape
-    blocks = np.zeros(blocks_shape, dtype=sequence.dtype)
+    blocks = np.zeros(blocks_shape, dtype=dc_sequence.dtype)
+
+    blocks[:, 0, 0, 0] = dc_sequence
 
     seq_index = 0
-    for index in indices_block:
-        values_from_sequence = sequence[seq_index : seq_index + num_blocks]
+    for index in indices_block[1:]:
+        values_from_sequence = ac_sequence[seq_index : seq_index + num_blocks]
         blocks[:, index[0], index[1], index[2]] = values_from_sequence
         seq_index += num_blocks
 

@@ -1,3 +1,4 @@
+from typing import Tuple
 from typing import TypeVar
 
 import numpy as np
@@ -17,11 +18,11 @@ TypeRleValues = npt.NDArray[np.int32]
 TypeRleCounts = npt.NDArray[np.uint32]
 
 
-@timed()
+@timed()  # pyright: ignore
 def encode_array(
     array: npt.NDArray[DType],
     quantization_table: npt.NDArray[np.float32],
-) -> tuple[TypeRleValues, TypeRleCounts]:
+) -> Tuple[TypeRleValues, TypeRleCounts, TypeRleValues, TypeRleCounts]:
     logger.info(f"Encoding array of shape {array.shape}...")
 
     block_shape_tuple = quantization_table.shape
@@ -34,12 +35,16 @@ def encode_array(
     dct_blocks_quantized = quantize(dct_blocks, quantization_table)
 
     scan_indices = get_scan_indices_block(block_shape_array)
-    sequence = blocks_to_sequence(dct_blocks_quantized, scan_indices)
-    logger.info(f"Sequence length: {len(sequence):,}")
-    values, counts = run_length_encode(sequence)
-    logger.info(f"Run-length encoded sequence length: {len(values):,}")
+    dc_sequence, ac_sequence = blocks_to_sequence(dct_blocks_quantized, scan_indices)
+    logger.info(f"DC sequence length: {len(dc_sequence):,}")
+    logger.info(f"AC sequence length: {len(ac_sequence):,}")
 
-    return values, counts
+    dc_values, dc_counts = run_length_encode(dc_sequence)
+    logger.info(f"Run-length encoded DC sequence length: {len(dc_values):,}")
+    ac_values, ac_counts = run_length_encode(ac_sequence)
+    logger.info(f"Run-length encoded AC sequence length: {len(ac_values):,}")
+
+    return dc_values, dc_counts, ac_values, ac_counts
 
 
 def get_distance_to_origin(indices: TypeBlockIndices) -> npt.NDArray[np.float64]:
@@ -55,7 +60,7 @@ def get_scan_indices_block(block_shape: TypeShapeBlockNumpy) -> TypeBlockIndices
     return scan_indices.astype(np.uint8)
 
 
-@timed()
+@timed()  # pyright: ignore
 def split_into_blocks(
     array: npt.NDArray[DType],
     block_shape: TypeShapeBlockNumpy,
@@ -71,7 +76,7 @@ def split_into_blocks(
     return blocks
 
 
-@timed()
+@timed()  # pyright: ignore
 def cosine_transform(blocks: npt.ArrayLike) -> npt.NDArray[np.float64]:
     blocks_cast = np.array(blocks, np.float64).copy()
     blocks_cast -= blocks_cast.min()
@@ -82,7 +87,7 @@ def cosine_transform(blocks: npt.ArrayLike) -> npt.NDArray[np.float64]:
     return np.array(dct_blocks)
 
 
-@timed()
+@timed()  # pyright: ignore
 def quantize(
     dct_blocks: npt.NDArray[np.float64],
     quantization_table: npt.NDArray[np.float32],
@@ -91,22 +96,23 @@ def quantize(
     return dct_blocks_quantized.astype(np.int32)
 
 
-@timed()
+@timed()  # pyright: ignore
 def blocks_to_sequence(
     dct_blocks: npt.NDArray[np.int32],
     scan_indices: npt.NDArray[np.uint8],
-) -> npt.NDArray[np.int32]:
-    sequence = np.empty(dct_blocks.size, dtype=np.int32)
-    for i, index in enumerate(scan_indices):
+) -> Tuple[npt.NDArray[np.int32], npt.NDArray[np.int32]]:
+    dc_sequence = dct_blocks[:, 0, 0, 0]
+    ac_sequence = np.empty(dct_blocks.size - len(dc_sequence), dtype=np.int32)
+    for i, index in enumerate(scan_indices[1:]):
         scanned = dct_blocks[:, index[0], index[1], index[2]]
         ini = i * len(dct_blocks)
         fin = ini + len(dct_blocks)
-        sequence[ini:fin] = scanned
-    assert len(sequence) == dct_blocks.size
-    return sequence
+        ac_sequence[ini:fin] = scanned
+    assert len(dc_sequence) + len(ac_sequence) == dct_blocks.size
+    return dc_sequence, ac_sequence
 
 
-@timed()
+@timed()  # pyright: ignore
 def run_length_encode(
     sequence: npt.NDArray[np.int32],
 ) -> tuple[npt.NDArray[np.int32], npt.NDArray[np.uint32]]:
@@ -124,7 +130,7 @@ def run_length_encode(
     return values, counts
 
 
-@timed()
+@timed()  # pyright: ignore
 def pad_array(
     array: npt.NDArray[DType], block_shape: TypeShapeBlockNumpy
 ) -> npt.NDArray[DType]:
