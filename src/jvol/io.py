@@ -13,8 +13,10 @@ from .encoding import get_quantization_table
 class FormatKeys(str, enum.Enum):
     IJK_TO_RAS = "ijk_to_ras"
     QUANTIZATION_BLOCK = "quantization_block"
-    RLE_VALUES = "rle_values"
-    RLE_COUNTS = "rle_counts"
+    DC_RLE_VALUES = "dc_rle_values"
+    DC_RLE_COUNTS = "dc_rle_counts"
+    AC_RLE_VALUES = "ac_rle_values"
+    AC_RLE_COUNTS = "ac_rle_counts"
     DTYPE = "dtype"
     INTERCEPT = "intercept"
     SLOPE = "slope"
@@ -33,13 +35,23 @@ def save_jvol(
     dtype = array.dtype
     intercept = array.min()
     slope = array.max() - intercept
-    rle_values, rle_counts = encode_array(array, quantization_table)
+    dc_rle_values, dc_rle_counts, ac_rle_values, ac_rle_counts = encode_array(
+        array,
+        quantization_table,
+    )
+
+    dc_rle_values = dc_rle_values.astype(np.min_scalar_type(dc_rle_values))
+    dc_rle_counts = dc_rle_counts.astype(np.min_scalar_type(dc_rle_counts))
+    ac_rle_values = ac_rle_values.astype(np.min_scalar_type(ac_rle_values))
+    ac_rle_counts = ac_rle_counts.astype(np.min_scalar_type(ac_rle_counts))
 
     save_dict = {
         FormatKeys.IJK_TO_RAS.value: ijk_to_ras[:3],
         FormatKeys.QUANTIZATION_BLOCK.value: quantization_table,
-        FormatKeys.RLE_VALUES.value: rle_values.astype(np.min_scalar_type(rle_values)),
-        FormatKeys.RLE_COUNTS.value: rle_counts.astype(np.min_scalar_type(rle_counts)),
+        FormatKeys.DC_RLE_VALUES.value: dc_rle_values,
+        FormatKeys.DC_RLE_COUNTS.value: dc_rle_counts,
+        FormatKeys.AC_RLE_VALUES.value: ac_rle_values,
+        FormatKeys.AC_RLE_COUNTS.value: ac_rle_counts,
         FormatKeys.DTYPE.value: np.empty((), dtype=dtype),
         FormatKeys.INTERCEPT.value: intercept,
         FormatKeys.SLOPE.value: slope,
@@ -55,8 +67,10 @@ def open_jvol(path: Path) -> Tuple[np.ndarray, np.ndarray]:
     ijk_to_ras = fill_ijk_to_ras(loaded[FormatKeys.IJK_TO_RAS.value])
     quantization_block = loaded[FormatKeys.QUANTIZATION_BLOCK.value]
     array = decode_array(
-        rle_values=loaded[FormatKeys.RLE_VALUES],
-        rle_counts=loaded[FormatKeys.RLE_COUNTS],
+        dc_rle_values=loaded[FormatKeys.DC_RLE_VALUES],
+        dc_rle_counts=loaded[FormatKeys.DC_RLE_COUNTS],
+        ac_rle_values=loaded[FormatKeys.AC_RLE_VALUES],
+        ac_rle_counts=loaded[FormatKeys.AC_RLE_COUNTS],
         quantization_block=quantization_block,
         target_shape=loaded[FormatKeys.SHAPE],
         intercept=loaded[FormatKeys.INTERCEPT],
