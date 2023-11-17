@@ -34,3 +34,6 @@ repos:
     hooks:
     - id: pyupgrade
       args: [--py38-plus]
+
+autofix_commit_msg: Autoupdate pre-commit hooks
+autoupdate_schedule: monthly
