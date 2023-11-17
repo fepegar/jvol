@@ -2,15 +2,14 @@ from typing import Any
 from typing import TypeVar
 
 import numpy as np
-from numpy import generic
 import numpy.typing as npt
 from einops import rearrange
 from loguru import logger
+from numpy import generic
 from scipy.fft import idctn
 
 from .encoding import get_scan_indices_block
 from .timer import timed
-
 
 DType = TypeVar("DType", bound=generic)
 TypeShapeArray = npt.NDArray[np.uint16]

@@ -14,7 +14,6 @@ from typing_extensions import Annotated
 from jvol import open_jvol
 from jvol import save_jvol
 
-
 app = typer.Typer()
 
 

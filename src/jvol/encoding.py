@@ -2,14 +2,13 @@ from typing import Tuple
 from typing import TypeVar
 
 import numpy as np
-from numpy import generic
 import numpy.typing as npt
 from einops import rearrange
 from loguru import logger
+from numpy import generic
 from scipy.fft import dctn
 
 from .timer import timed
-
 
 DType = TypeVar("DType", bound=generic)
 TypeBlockIndices = npt.NDArray[np.uint8]

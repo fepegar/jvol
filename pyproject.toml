@@ -38,6 +38,10 @@ dev = [
 [project.scripts]
 jvol = "jvol.cli.convert:app"
 
+[tool.isort]
+profile = "black"
+force_single_line = true
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"

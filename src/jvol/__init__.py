@@ -1,9 +1,8 @@
 from loguru import logger
 
-from .jvol import JpegVolume
 from .io import open_jvol
 from .io import save_jvol
-
+from .jvol import JpegVolume
 
 __all__ = [
     "JpegVolume",
