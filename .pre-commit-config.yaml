@@ -4,10 +4,14 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
       - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
 
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.336
@@ -40,5 +44,19 @@ repos:
     hooks:
       - id: isort
 
-autofix_commit_msg: Autoupdate pre-commit hooks
-autoupdate_schedule: monthly
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.5
+    hooks:
+      - id: docformatter
+        args: ["--in-place", "--config", "./pyproject.toml"]
+
+ci:
+  autofix_commit_msg: Autoupdate pre-commit hooks
+  autoupdate_schedule: monthly
