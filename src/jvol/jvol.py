@@ -15,8 +15,8 @@ class JpegVolume:
 
     Args:
         array: 3D NumPy array.
-        ijk_to_ras: 4x4 affine transformation matrix containing the mapping
-            from voxel indices to RAS (left → right, posterior → anterior,
+        ijk_to_ras: 4×4 affine transformation matrix containing the mapping
+            from voxel indices to RAS+ (left → right, posterior → anterior,
             inferior → superior) coordinates.
     """
 
@@ -31,7 +31,7 @@ class JpegVolume:
         """Open a JpegVolume from a file.
 
         Args:
-            path: Path to the file to open, typically with a `'.jvol'` extension.
+            path: Path to the file, typically with a `'.jvol'` extension.
         """
         return cls(*open_jvol(path))
 
@@ -39,9 +39,12 @@ class JpegVolume:
         """Save the JpegVolume to a file.
 
         Args:
-            path: Path to save the file to, typicall with a `'.jvol'` extension.
+            path: Path to save the file to, typically with a `'.jvol'` extension.
             block_size: Size of the blocks to use for encoding.
             quality: Quality of the JPEG encoding, between 1 and 100.
+
+        Raises:
+            ValueError: If the quality is not between 1 and 100.
         """
         if not 1 <= quality <= 100:
             raise ValueError(f"Quality must be between 1 and 100, got {quality}.")

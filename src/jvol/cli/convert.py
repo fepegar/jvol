@@ -43,6 +43,7 @@ def main(
     ),
     verbose: Annotated[int, typer.Option("--verbose", "-v", count=True)] = 0,
 ) -> None:
+    """Tool for converting medical images to and from JPEG-encoded volumes."""
     setup_logging(verbose)
 
     logger.info(f'Opening "{input_path}"...')

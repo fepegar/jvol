@@ -2,3 +2,23 @@ site_name: JPEG volume format
 
 theme:
   name: material
+
+plugins:
+- search
+- mkdocstrings
+- gen-files:
+    scripts:
+    - scripts/gen_ref_pages.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- section-index
+
+
+nav:
+- index.md
+- getting-started.md
+- JVOL format: jvol.md
+- encoding.md
+- decoding.md
+- FAQ: faq.md
+- Code reference: reference/

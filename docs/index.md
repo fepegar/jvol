@@ -1,1 +1,1 @@
-# JPEG Volume
+Documentation for JVOL.
