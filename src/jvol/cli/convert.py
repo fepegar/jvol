@@ -34,14 +34,27 @@ def main(
         "-q",
         min=1,
         max=100,
+        help="Quality of the JPEG encoding, between 1 and 100.",
     ),
     block_size: int = typer.Option(
         8,
         "--block-size",
         "-b",
         min=2,
+        help=(
+            "Size of the blocks to use for encoding."
+            " Quality is higher with larger blocks, but so is the file size."
+        ),
     ),
-    verbose: Annotated[int, typer.Option("--verbose", "-v", count=True)] = 0,
+    verbose: Annotated[
+        int,
+        typer.Option(
+            "--verbose",
+            "-v",
+            count=True,
+            help="Enable verbose logging. Use -vv for debug logging.",
+        ),
+    ] = 0,
 ) -> None:
     """Tool for converting medical images to and from JPEG-encoded volumes."""
     setup_logging(verbose)

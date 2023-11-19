@@ -59,16 +59,7 @@ def decode_array(
     array_rescaled = rescale_array_for_decoding(array_raw, intercept, slope)
 
     array_cropped = crop_array(array_rescaled, target_shape)
-
-    iinfo = np.iinfo(dtype)
-    if array_cropped.min() < iinfo.min or array_cropped.max() > iinfo.max:
-        logger.warning(
-            f"Array intensities [{array_cropped.min():.1f}, {array_cropped.max():.1f}]"
-            f' are outside of bounds of data type "{dtype}"'
-            f" [{iinfo.min}, {iinfo.max}] after inverse cosine transform."
-            f" Clipping..."
-        )
-        array_cropped = np.clip(array_cropped, iinfo.min, iinfo.max)
+    array_cropped = clip_to_dtype(array_cropped, dtype)
 
     if array_cropped.dtype != dtype:
         logger.info(f'Casting array to data type "{repr(dtype)}"...')
@@ -76,6 +67,24 @@ def decode_array(
 
     logger.success("Array decoded successfully")
     return array_cropped
+
+
+def clip_to_dtype(
+    array: npt.NDArray[DType], dtype: npt.DTypeLike
+) -> npt.NDArray[DType]:
+    try:
+        iinfo = np.iinfo(dtype)
+        if array.min() < iinfo.min or array.max() > iinfo.max:
+            logger.warning(
+                f"Array intensities [{array.min():.1f}, {array.max():.1f}]"
+                f' are outside of bounds of data type "{dtype}"'
+                f" [{iinfo.min}, {iinfo.max}] after inverse cosine transform."
+                f" Clipping..."
+            )
+            array = np.clip(array, iinfo.min, iinfo.max)
+    except ValueError:
+        pass
+    return array
 
 
 @timed()  # pyright: ignore

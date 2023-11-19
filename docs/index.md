@@ -1,1 +1,1 @@
-Documentation for JVOL.
+Documentation for JVol.

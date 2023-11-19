@@ -21,6 +21,7 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "mkdocs-gen-files",
+    "mkdocs-jupyter",
     "mkdocs-literate-nav",
     "mkdocs-material",
     "mkdocs-section-index",

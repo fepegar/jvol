@@ -1,3 +1,3 @@
-# JVOL format
+# JVol format
 
 ::: jvol.JpegVolume

@@ -1,7 +1,9 @@
-site_name: JPEG volume format
+site_name: JVol documentation
 
 theme:
   name: material
+  palette:
+    primary: teal
 
 plugins:
 - search
@@ -12,13 +14,14 @@ plugins:
 - literate-nav:
     nav_file: SUMMARY.md
 - section-index
-
+- mkdocs-jupyter
 
 nav:
 - index.md
-- getting-started.md
-- JVOL format: jvol.md
+# - getting-started.md
+- getting-started.ipynb
+- JVol format: jvol.md
 - encoding.md
 - decoding.md
 - FAQ: faq.md
-- Code reference: reference/
+- API reference: reference/
