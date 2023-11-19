@@ -17,7 +17,6 @@ dependencies = [
     "typer[all]",
 ]
 
-# Define extra dependencies
 [project.optional-dependencies]
 docs = [
     "ipywidgets",
