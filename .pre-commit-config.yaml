@@ -57,6 +57,12 @@ repos:
       - id: docformatter
         args: ["--in-place", "--config", "./pyproject.toml"]
 
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+
+
 ci:
   autofix_commit_msg: Autoupdate pre-commit hooks
   autoupdate_schedule: monthly

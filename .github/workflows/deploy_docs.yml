@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             mkdocs-material-
 
-      - run: pip install ".[docs]" papermill
+      - run: pip install ".[docs]"
 
       - run: papermill docs/getting-started.ipynb docs/getting-started.ipynb
 

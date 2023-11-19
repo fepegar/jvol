@@ -20,12 +20,14 @@ dependencies = [
 # Define extra dependencies
 [project.optional-dependencies]
 docs = [
+    "ipywidgets",
     "mkdocs-gen-files",
     "mkdocs-jupyter",
     "mkdocs-literate-nav",
     "mkdocs-material",
     "mkdocs-section-index",
     "mkdocstrings[python]",
+    "papermill",
 ]
 
 tests = [
