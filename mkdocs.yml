@@ -4,6 +4,12 @@ theme:
   name: material
   palette:
     primary: teal
+  features:
+  - navigation.instant
+  - navigation.instant.progress
+  - navigation.tracking
+  - navigation.sections
+  - search.highlight
 
 plugins:
 - search
@@ -20,7 +26,7 @@ nav:
 - index.md
 # - getting-started.md
 - getting-started.ipynb
-- JVol format: jvol.md
+- JpegVolume class: jvol.md
 - encoding.md
 - decoding.md
 - FAQ: faq.md

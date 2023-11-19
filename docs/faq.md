@@ -2,7 +2,7 @@
 
 ## How do I get started?
 
-The best way to get started is to read the [Getting Started](getting-started.md) guide.
+The best way to get started is to read the [Getting started](getting-started.ipynb) guide.
 
 ## How do I get help?
 
