@@ -26,6 +26,7 @@ docs = [
     "mkdocs-literate-nav",
     "mkdocs-material",
     "mkdocs-section-index",
+    "mkdocs-typer",
     "mkdocstrings[python]",
     "papermill",
 ]
@@ -40,8 +41,12 @@ dev = [
     "pre-commit",
 ]
 
+all = [
+    "jvol[dev]",
+]
+
 [project.scripts]
-jvol = "jvol.cli.convert:app"
+jvol = "jvol.cli.convert:jvol"
 
 [tool.isort]
 profile = "black"

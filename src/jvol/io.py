@@ -2,12 +2,15 @@ import enum
 from pathlib import Path
 from typing import Tuple
 
+import itk
 import numpy as np
 import numpy.typing as npt
 
 from .decoding import decode_array
 from .encoding import encode_array
 from .encoding import get_quantization_table
+from .transforms import create_ijk_to_ras_from_itk_image
+from .transforms import get_itk_metadata_from_ijk_to_ras
 
 
 class FormatKeys(str, enum.Enum):
@@ -21,6 +24,39 @@ class FormatKeys(str, enum.Enum):
     INTERCEPT = "intercept"
     SLOPE = "slope"
     SHAPE = "shape"
+
+
+def open_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
+    _open = open_jvol if path.suffix == ".jvol" else open_itk_image
+    return _open(path)
+
+
+def save_image(
+    array: np.ndarray,
+    ijk_to_ras: np.ndarray,
+    path: Path,
+    **kwargs: int,
+) -> None:
+    if path.suffix == ".jvol":
+        save_jvol(array, ijk_to_ras, path, **kwargs)
+    else:
+        save_itk_image(array, ijk_to_ras, path)
+
+
+def open_itk_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
+    image = itk.imread(path)
+    array = itk.array_view_from_image(image).T
+    ijk_to_ras = create_ijk_to_ras_from_itk_image(image)
+    return array, ijk_to_ras
+
+
+def save_itk_image(array: np.ndarray, ijk_to_ras: np.ndarray, path: Path) -> None:
+    image = itk.image_view_from_array(array.T.copy())
+    origin, rotation, spacing = get_itk_metadata_from_ijk_to_ras(ijk_to_ras)
+    image.SetOrigin(origin)
+    image.SetDirection(rotation)
+    image.SetSpacing(spacing)
+    itk.imwrite(image, path)
 
 
 def save_jvol(
