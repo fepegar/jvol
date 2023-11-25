@@ -29,9 +29,9 @@ class JpegVolume:
     Tip:
         To learn more about coordinates systems, check the following resources:
 
-            * [Neuroimaging in Python](https://nipy.org/nibabel/coordinate_systems.html)
-            * [Slicer Coordinate Systems](https://slicer.readthedocs.io/en/latest/user_guide/coordinate_systems.html)
-            * [FSL (see "Background information on NIfTI Orientation")](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Orientation%20Explained)
+        - [NiBabel](https://nipy.org/nibabel/)'s [Coordinate systems and affines](https://nipy.org/nibabel/coordinate_systems.html),
+        - [3D Slicer](https://www.slicer.org/)'s [Coordinate systems](https://slicer.readthedocs.io/en/latest/user_guide/coordinate_systems.html),
+        - [FSL](https://fsl.fmrib.ox.ac.uk/)'s [docs (see "Background information on NIfTI Orientation")](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Orientation%20Explained)
     """  # noqa: E501
 
     def __init__(
