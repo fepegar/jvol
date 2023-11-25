@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any
+from typing import Optional
 from typing import TypeAlias
 from typing import Union
 
@@ -22,11 +23,25 @@ class JpegVolume:
         array: 3D NumPy array.
         ijk_to_ras: 4×4 affine transformation matrix containing the mapping
             from voxel indices to RAS+ (left → right, posterior → anterior,
-            inferior → superior) coordinates.
-    """
+            inferior → superior) coordinates. If not specified, the identity
+            matrix is used.
 
-    def __init__(self, array: npt.ArrayLike, ijk_to_ras: npt.ArrayLike):
+    Tip:
+        To learn more about coordinates systems, check the following resources:
+
+            * [Neuroimaging in Python](https://nipy.org/nibabel/coordinate_systems.html)
+            * [Slicer Coordinate Systems](https://slicer.readthedocs.io/en/latest/user_guide/coordinate_systems.html)
+            * [FSL (see "Background information on NIfTI Orientation")](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Orientation%20Explained)
+    """  # noqa: E501
+
+    def __init__(
+        self,
+        array: npt.ArrayLike,
+        ijk_to_ras: Optional[npt.ArrayLike] = None,
+    ):
         self.array = np.array(array)
+        if ijk_to_ras is None:
+            ijk_to_ras = np.eye(4)
         self.ijk_to_ras = np.array(ijk_to_ras, dtype=np.float64)
         if self.array.ndim != 3:
             raise ValueError(
@@ -54,12 +69,12 @@ class JpegVolume:
         return cls(*open_jvol(path))
 
     def save(self, path: TypePath, block_size: int = 8, quality: int = 60) -> None:
-        """Save the image using lossy compression.
+        """Save the image using a lossy encoding algorithm for compression.
 
         Args:
             path: Output path with `.jvol` extension.
-            block_size: Size of the blocks to use for encoding. Quality is
-                higher with larger blocks, but so is the file size.
+            block_size: Size of the blocks to use for encoding. Higher
+                values result in better quality, but larger file sizes.
             quality: Quality of the JPEG encoding, between 1 and 100. Higher
                 values result in better quality, but larger file sizes.
 
