@@ -55,6 +55,9 @@ nav:
   - FAQ: faq.md
   - API reference: reference/
 
+watch:
+  - src
+
 # GitHub
 copyright: Copyright &copy; 2023 Fernando Pérez García
 repo_name: jvol
