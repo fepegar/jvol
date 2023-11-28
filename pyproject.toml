@@ -27,7 +27,6 @@ docs = [
     "mkdocs-section-index",
     "mkdocs-typer",
     "mkdocstrings[python]",
-    "papermill",
 ]
 
 tests = [
