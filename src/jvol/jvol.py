@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any
-from typing import Optional
 from typing import TypeAlias
 from typing import Union
 
@@ -37,7 +36,7 @@ class JpegVolume:
     def __init__(
         self,
         array: npt.ArrayLike,
-        ijk_to_ras: Optional[npt.ArrayLike] = None,
+        ijk_to_ras: npt.ArrayLike | None = None,
     ):
         self.array = np.array(array)
         if ijk_to_ras is None:
