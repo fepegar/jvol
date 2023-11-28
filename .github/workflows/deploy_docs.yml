@@ -33,12 +33,17 @@ jobs:
         run: pip install ".[docs]"
 
       - name: Execute notebooks
-        run: pip install papermill && bash scripts/docs/run_notebooks.sh
+        run: |
+          pip install papermill
+          bash scripts/docs/run_notebooks.sh
 
-      - name: Deploy to smokeshow if branch is not main
+      - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
-        run: mkdocs build && smokeshow upload site
+        run: |
+          mkdocs build
+          pip install smokeshow
+          smokeshow upload site
 
-      - name: Deploy to GitHub Pages if branch is main
+      - name: Build and deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: mkdocs gh-deploy --force
