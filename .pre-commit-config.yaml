@@ -10,6 +10,7 @@ repos:
       - id: check-merge-conflict
       - id: check-toml
       - id: check-yaml
+        args: [--unsafe]  # https://github.com/pre-commit/pre-commit-hooks/issues/701#issuecomment-990043558
       - id: end-of-file-fixer
       - id: trailing-whitespace
 

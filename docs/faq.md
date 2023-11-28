@@ -1,10 +1,14 @@
 # Frequently asked questions
 
-## Why JVol?
+## When should I use JVol?
 
 > Lossy compression is typically used when a file can afford to lose some data, and/or if storage space needs to be drastically "freed up".
 
 - [Adobe.com](https://www.adobe.com/uk/creativecloud/photography/discover/lossy-vs-lossless.html)
+
+## When should I not use JVol?
+
+JVol is not intended for clinical use.
 
 ## How do I get started?
 
@@ -19,7 +23,7 @@ If you are reporting a bug, please make sure to mention what you got and what yo
 ## What frameworks does JVol use under the hood?
 
 JVol uses [NumPy](https://numpy.org/) and [SciPy](https://www.scipy.org/) for for numerical computations.
-The command line is implemented using [Typer](https://typer.tiangolo.com/), and it uses [ITK](https://itk.org/) to read and write medical images in standard formats.
+The command line is implemented using [Typer](https://typer.tiangolo.com/), and [ITK](https://itk.org/) is used to read and write medical images in standard formats.
 
 Other libraries that are used:
 

@@ -45,7 +45,7 @@ all = [
 ]
 
 [project.scripts]
-jvol = "jvol.cli.convert:jvol"
+jvol = "jvol.cli.convert:app"
 
 [tool.isort]
 profile = "black"

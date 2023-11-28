@@ -11,10 +11,10 @@ from typing_extensions import Annotated
 from jvol.io import open_image
 from jvol.io import save_image
 
-jvol = typer.Typer()
+app = typer.Typer()
 
 
-@jvol.command()
+@app.command()
 def main(
     input_path: Path = typer.Argument(
         ...,

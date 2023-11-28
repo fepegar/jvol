@@ -2,4 +2,5 @@
 
 ::: mkdocs-typer
     :module: jvol.cli.convert
-    :command: jvol
+    :command: app
+    :prog_name: jvol
