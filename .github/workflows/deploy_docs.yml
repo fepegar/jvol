@@ -33,7 +33,7 @@ jobs:
         run: pip install ".[docs]"
 
       - name: Execute notebooks
-        run: pip install papermill && bash scripts/run_notebooks.sh
+        run: pip install papermill && bash scripts/docs/run_notebooks.sh
 
       - name: Deploy to smokeshow if branch is not main
         if: github.ref != 'refs/heads/main'
