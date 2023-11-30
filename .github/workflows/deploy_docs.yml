@@ -1,10 +1,7 @@
-name: Deploy documentation to GitHub Pages
+name: Deploy documentation
 
-# Enabling manual triggers
 on:
   push:
-    branches:
-      - main
 
 permissions:
   contents: write
@@ -13,23 +10,40 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+        if: github.ref == 'refs/heads/main'
 
       - uses: actions/cache@v3
+        if: github.ref == 'refs/heads/main'
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
           restore-keys: |
             mkdocs-material-
 
-      - run: pip install ".[docs]"
+      - name: Install dependencies
+        run: pip install ".[docs]"
 
-      - run: papermill docs/getting-started.ipynb docs/getting-started.ipynb
+      - name: Execute notebooks
+        run: |
+          pip install papermill
+          bash scripts/docs/run_notebooks.sh
 
-      - run: mkdocs gh-deploy --force
+      - name: Build and deploy to smokeshow
+        if: github.ref != 'refs/heads/main'
+        run: |
+          mkdocs build
+          pip install smokeshow
+          smokeshow upload site
+
+      - name: Build and deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: mkdocs gh-deploy --force
