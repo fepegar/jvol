@@ -40,7 +40,7 @@ jobs:
 
       - name: Run "${{ matrix.notebook }}" notebook
         run: |
-          IN_PATH=notebooks/${{ matrix.notebook }}.ipynb
+          IN_PATH=docs/${{ matrix.notebook }}.ipynb
           OUT_PATH=${{ matrix.notebook }}_output.ipynb
           papermill \
             --no-progress-bar \
