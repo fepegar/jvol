@@ -34,9 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: |
-          pip install ipython ipykernel papermill
-          ipython kernel install --name "python3" --user
+        run: pip install papermill
 
       - name: Run "${{ matrix.notebook }}" notebook
         run: |
