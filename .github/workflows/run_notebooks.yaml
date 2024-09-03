@@ -1,0 +1,48 @@
+name: Run notebooks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  run-notebooks:
+    strategy:
+      matrix:
+        notebook:
+          - getting-started
+          - encoding
+          - decoding
+          - compression
+          - file-format
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          pip install ipython ipykernel papermill
+          ipython kernel install --name "python3" --user
+
+      - name: Run "${{ matrix.notebook }}" notebook
+        run: |
+          IN_PATH=notebooks/${{ matrix.notebook }}.ipynb
+          OUT_PATH=${{ matrix.notebook }}_output.ipynb
+          papermill \
+            --no-progress-bar \
+            --log-output \
+            $IN_PATH $OUT_PATH
