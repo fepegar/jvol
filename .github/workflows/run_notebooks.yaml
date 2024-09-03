@@ -35,8 +35,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ipython ipykernel papermill
+          pip install --user ipython ipykernel papermill
+          pip install --user git+https://github.com/fepegar/jvol.git
           ipython kernel install --name "python3" --user
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Run "${{ matrix.notebook }}" notebook
         run: |
@@ -45,5 +47,7 @@ jobs:
           papermill \
             --no-progress-bar \
             --log-output \
+            --stdout-file /dev/stdout \
+            --stderr-file /dev/stderr \
             --kernel python3 \
             $IN_PATH $OUT_PATH
