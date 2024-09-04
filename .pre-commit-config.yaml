@@ -20,16 +20,6 @@ repos:
   #   hooks:
   #     - id: pyright
 
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.8.0
-    hooks:
-      - id: black
-        # It is recommended to specify the latest version of Python
-        # supported by your project here, or alternatively use
-        # pre-commit's default_language_version, see
-        # https://pre-commit.com/#top_level-default_language_version
-        language_version: python3.11
-
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.1
     hooks:
@@ -39,12 +29,7 @@ repos:
     rev: v3.17.0
     hooks:
       - id: pyupgrade
-        args: [--py38-plus]
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
+        args: [--py310-plus]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.3
