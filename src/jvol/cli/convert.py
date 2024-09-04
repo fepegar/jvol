@@ -8,10 +8,9 @@ from humanize import naturalsize
 from loguru import logger
 from typing import Annotated
 
-from jvol.io import open_image
-from jvol.io import save_image
+from jvol.io import open_image, save_image
 
-app = typer.Typer()
+app = typer.Typer(pretty_exceptions_show_locals=False)
 
 
 @app.command()
