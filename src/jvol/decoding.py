@@ -1,22 +1,19 @@
 from typing import Any
-from typing import TypeVar
 
 import numpy as np
 import numpy.typing as npt
 from einops import rearrange
 from loguru import logger
-from numpy import generic
 from scipy.fft import idctn
 
 from .encoding import get_scan_indices_block
 from .timer import timed
-
-DType = TypeVar("DType", bound=generic)
-TypeShapeArray = npt.NDArray[np.uint16]
-TypeShapeBlockNumpy = npt.NDArray[np.uint8]
-TypeShapeTuple = tuple[int, int, int]
-TypeRleValues = npt.NDArray[np.int32]
-TypeRleCounts = npt.NDArray[np.uint32]
+from .types import DType
+from .types import TypeRleCounts
+from .types import TypeRleValues
+from .types import TypeShapeArray
+from .types import TypeShapeBlockNumpy
+from .types import block_shape_dtype
 
 
 @timed()  # pyright: ignore
@@ -40,7 +37,7 @@ def decode_array(
         f"Reconstructing blocks from {len(dc_scanned_sequence):,} DC components"
         f" and {len(ac_scanned_sequence):,} AC components..."
     )
-    block_shape_array = np.array(quantization_block.shape, np.uint8)
+    block_shape_array = np.array(quantization_block.shape, block_shape_dtype)
     scanning_indices = get_scan_indices_block(block_shape_array)
 
     dct_blocks = sequence_to_blocks(
@@ -131,7 +128,7 @@ def inverse_cosine_transform(
     dct_blocks_rescaled = dct_blocks * quantization_block
     blocks = idctn(dct_blocks_rescaled, axes=(-3, -2, -1))
     blocks_array = np.array(blocks, dtype=np.float32)
-    block_shape = np.array(quantization_block.shape, np.uint8)
+    block_shape = np.array(quantization_block.shape, block_shape_dtype)
     padded_target_shape = pad_image_shape(target_shape, block_shape)
     num_blocks_ijk = (padded_target_shape / block_shape).astype(int)
     if len(blocks) != np.prod(num_blocks_ijk):

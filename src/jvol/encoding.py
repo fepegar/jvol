@@ -1,19 +1,16 @@
-from typing import TypeVar
-
 import numpy as np
 import numpy.typing as npt
 from einops import rearrange
 from loguru import logger
-from numpy import generic
 from scipy.fft import dctn
 
 from .timer import timed
-
-DType = TypeVar("DType", bound=generic)
-TypeBlockIndices = npt.NDArray[np.uint8]
-TypeShapeBlockNumpy = npt.NDArray[np.uint8]
-TypeRleValues = npt.NDArray[np.int32]
-TypeRleCounts = npt.NDArray[np.uint32]
+from .types import DType
+from .types import TypeBlockIndices
+from .types import TypeRleCounts
+from .types import TypeRleValues
+from .types import TypeShapeBlockNumpy
+from .types import block_shape_dtype
 
 
 @timed()  # pyright: ignore
@@ -24,7 +21,7 @@ def encode_array(
     logger.info(f"Encoding array of shape {array.shape}...")
 
     block_shape_tuple = quantization_table.shape
-    block_shape_array = np.array(block_shape_tuple, np.uint8)
+    block_shape_array = np.array(block_shape_tuple, block_shape_dtype)
     padded_array = pad_array(array, block_shape_array)
 
     blocks = split_into_blocks(padded_array, block_shape_array)
