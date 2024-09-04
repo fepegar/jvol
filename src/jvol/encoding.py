@@ -60,6 +60,7 @@ def split_into_blocks(
     array: npt.NDArray[DType],
     block_shape: TypeShapeBlockNumpy,
 ) -> npt.NDArray[DType]:
+    block_shape = block_shape.tolist()
     # This assumes the array has been padded so the shape is divisible by block size
     blocks = rearrange(
         array,

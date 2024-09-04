@@ -5,7 +5,7 @@ import numpy.typing as npt
 from numpy import generic
 
 DType = TypeVar("DType", bound=generic)
-block_shape_dtype = np.uint16
+block_shape_dtype = np.uint8
 TypeBlockIndices = npt.NDArray[np.uint8]
 TypeShapeBlockNumpy = npt.NDArray[block_shape_dtype]
 TypeRleValues = npt.NDArray[np.int32]
