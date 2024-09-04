@@ -2,13 +2,14 @@ from __future__ import annotations  # for mkdocstrings
 
 import sys
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from humanize import naturalsize
 from loguru import logger
-from typing import Annotated
 
-from jvol.io import open_image, save_image
+from jvol.io import open_image
+from jvol.io import save_image
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
