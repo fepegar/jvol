@@ -6,7 +6,7 @@ from pathlib import Path
 import typer
 from humanize import naturalsize
 from loguru import logger
-from typing_extensions import Annotated
+from typing import Annotated
 
 from jvol.io import open_image
 from jvol.io import save_image

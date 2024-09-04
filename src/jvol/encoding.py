@@ -1,31 +1,27 @@
-from typing import Tuple
-from typing import TypeVar
-
 import numpy as np
 import numpy.typing as npt
 from einops import rearrange
 from loguru import logger
-from numpy import generic
 from scipy.fft import dctn
 
 from .timer import timed
-
-DType = TypeVar("DType", bound=generic)
-TypeBlockIndices = npt.NDArray[np.uint8]
-TypeShapeBlockNumpy = npt.NDArray[np.uint8]
-TypeRleValues = npt.NDArray[np.int32]
-TypeRleCounts = npt.NDArray[np.uint32]
+from .types import DType
+from .types import TypeBlockIndices
+from .types import TypeRleCounts
+from .types import TypeRleValues
+from .types import TypeShapeBlockNumpy
+from .types import block_shape_dtype
 
 
 @timed()  # pyright: ignore
 def encode_array(
     array: npt.NDArray[DType],
     quantization_table: npt.NDArray[np.float32],
-) -> Tuple[TypeRleValues, TypeRleCounts, TypeRleValues, TypeRleCounts]:
+) -> tuple[TypeRleValues, TypeRleCounts, TypeRleValues, TypeRleCounts]:
     logger.info(f"Encoding array of shape {array.shape}...")
 
     block_shape_tuple = quantization_table.shape
-    block_shape_array = np.array(block_shape_tuple, np.uint8)
+    block_shape_array = np.array(block_shape_tuple, block_shape_dtype)
     padded_array = pad_array(array, block_shape_array)
 
     blocks = split_into_blocks(padded_array, block_shape_array)
@@ -99,7 +95,7 @@ def quantize(
 def blocks_to_sequence(
     dct_blocks: npt.NDArray[np.int32],
     scan_indices: npt.NDArray[np.uint8],
-) -> Tuple[npt.NDArray[np.int32], npt.NDArray[np.int32]]:
+) -> tuple[npt.NDArray[np.int32], npt.NDArray[np.int32]]:
     dc_sequence = dct_blocks[:, 0, 0, 0]
     ac_sequence = np.empty(dct_blocks.size - len(dc_sequence), dtype=np.int32)
     for i, index in enumerate(scan_indices[1:]):
