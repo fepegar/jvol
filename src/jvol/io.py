@@ -1,6 +1,5 @@
 import enum
 from pathlib import Path
-from typing import Tuple
 
 import itk
 import numpy as np
@@ -26,7 +25,7 @@ class FormatKeys(str, enum.Enum):
     SHAPE = "shape"
 
 
-def open_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
+def open_image(path: Path) -> tuple[np.ndarray, np.ndarray]:
     _open = open_jvol if path.suffix == ".jvol" else open_itk_image
     return _open(path)
 
@@ -43,7 +42,7 @@ def save_image(
         save_itk_image(array, ijk_to_ras, path)
 
 
-def open_itk_image(path: Path) -> Tuple[np.ndarray, np.ndarray]:
+def open_itk_image(path: Path) -> tuple[np.ndarray, np.ndarray]:
     image = itk.imread(path)
     array = itk.array_view_from_image(image).T
     ijk_to_ras = create_ijk_to_ras_from_itk_image(image)
@@ -98,7 +97,7 @@ def save_jvol(
         np.savez_compressed(f, **save_dict)
 
 
-def open_jvol(path: Path) -> Tuple[np.ndarray, np.ndarray]:
+def open_jvol(path: Path) -> tuple[np.ndarray, np.ndarray]:
     loaded = np.load(path)
     ijk_to_ras = fill_ijk_to_ras(loaded[FormatKeys.IJK_TO_RAS.value])
     quantization_block = loaded[FormatKeys.QUANTIZATION_BLOCK.value]

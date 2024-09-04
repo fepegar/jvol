@@ -1,4 +1,3 @@
-from typing import Tuple
 from typing import TypeVar
 
 import numpy as np
@@ -21,7 +20,7 @@ TypeRleCounts = npt.NDArray[np.uint32]
 def encode_array(
     array: npt.NDArray[DType],
     quantization_table: npt.NDArray[np.float32],
-) -> Tuple[TypeRleValues, TypeRleCounts, TypeRleValues, TypeRleCounts]:
+) -> tuple[TypeRleValues, TypeRleCounts, TypeRleValues, TypeRleCounts]:
     logger.info(f"Encoding array of shape {array.shape}...")
 
     block_shape_tuple = quantization_table.shape
@@ -99,7 +98,7 @@ def quantize(
 def blocks_to_sequence(
     dct_blocks: npt.NDArray[np.int32],
     scan_indices: npt.NDArray[np.uint8],
-) -> Tuple[npt.NDArray[np.int32], npt.NDArray[np.int32]]:
+) -> tuple[npt.NDArray[np.int32], npt.NDArray[np.int32]]:
     dc_sequence = dct_blocks[:, 0, 0, 0]
     ac_sequence = np.empty(dct_blocks.size - len(dc_sequence), dtype=np.int32)
     for i, index in enumerate(scan_indices[1:]):
