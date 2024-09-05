@@ -7,6 +7,7 @@ from loguru import logger
 from scipy.fft import idctn
 
 from .encoding import get_scan_indices_block
+from .huffman import HuffmanCoding
 from .timer import timed
 from .types import DType
 from .types import TypeRleCounts
@@ -20,17 +21,19 @@ from .types import block_shape_dtype
 def decode_array(
     dc_rle_values: npt.NDArray[np.int32],
     dc_rle_counts: npt.NDArray[np.uint32],
-    ac_rle_values: npt.NDArray[np.int32],
-    ac_rle_counts: npt.NDArray[np.uint32],
+    # ac_rle_values: npt.NDArray[np.int32],
+    # ac_rle_counts: npt.NDArray[np.uint32],
     quantization_block: npt.NDArray[np.uint16],
     target_shape: TypeShapeArray,
     intercept: float,
     slope: float,
     dtype: npt.DTypeLike,
+    huffman_coding: HuffmanCoding,
 ) -> npt.NDArray[Any]:
     logger.info(f"Decoding {len(dc_rle_values):,} DC RLE values...")
     dc_scanned_sequence = run_length_decode(dc_rle_values, dc_rle_counts)
-    logger.info(f"Decoding {len(ac_rle_values):,} AC RLE values...")
+    # logger.info(f"Decoding {len(ac_rle_values):,} AC RLE values...")
+    ac_rle_values, ac_rle_counts = huffman_coding.decode()
     ac_scanned_sequence = run_length_decode(ac_rle_values, ac_rle_counts)
 
     logger.info(
