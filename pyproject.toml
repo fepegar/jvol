@@ -9,6 +9,7 @@ requires-python = ">=3.10"
 
 dependencies = [
     "dahuffman",
+    "dahuffman @ git+https://github.com/soxofaan/dahuffman.git@main",
     "einops",
     "humanize",
     "itk",
