@@ -37,6 +37,7 @@ tests = [
 dev = [
     "jvol[docs,tests]",
     "pre-commit",
+    "tox-uv",
 ]
 
 all = [
