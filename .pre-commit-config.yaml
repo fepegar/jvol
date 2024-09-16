@@ -47,3 +47,7 @@ repos:
 ci:
   autofix_commit_msg: Autoupdate pre-commit hooks
   autoupdate_schedule: monthly
+  skip:
+    - pyright
+    - ruff
+    - ruff-format
