@@ -87,7 +87,6 @@ jobs:
           - py311
           - py312
           - py313
-          - pytest
           - types
           - lint
           - format
