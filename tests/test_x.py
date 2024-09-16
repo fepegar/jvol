@@ -1,1 +1,5 @@
-def test_x(): ...
+import jvol
+
+
+def test_x():
+    print(jvol.__version__)
