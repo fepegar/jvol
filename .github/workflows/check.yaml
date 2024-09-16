@@ -87,6 +87,7 @@ jobs:
           - py311
           - py312
           - py313
+          - coverage
           - types
           - lint
           - format
