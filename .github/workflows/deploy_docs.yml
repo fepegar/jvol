@@ -32,7 +32,8 @@ jobs:
       - name: Install dependencies
         run: pip install ".[docs]"
 
-      - name: Execute notebooks
+      - name: Execute notebooks if on main
+        if: github.ref == 'refs/heads/main'
         run: |
           pip install papermill
           bash scripts/docs/run_notebooks.sh

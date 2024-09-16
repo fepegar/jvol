@@ -109,4 +109,4 @@ jobs:
         run: uv pip install --system jvol@.
 
       - name: Run check for ${{ matrix.tox_env }}
-        run: tox -v -e ${{ matrix.tox_env }}
+        run: tox -e ${{ matrix.tox_env }}
