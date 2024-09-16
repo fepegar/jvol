@@ -87,17 +87,19 @@ jobs:
           - py311
           - py312
           - py313
+          - pytest
           - types
           - lint
           - format
           - complexity
+          - docs
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup Python 3.12
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version-file: pyproject.toml
 
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
