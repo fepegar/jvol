@@ -29,13 +29,8 @@ docs = [
     "mkdocstrings[python]",
 ]
 
-tests = [
-    "jvol",
-    "pytest",
-]
-
 dev = [
-    "jvol[docs,tests]",
+    "jvol[docs]",
     "pre-commit",
     "tox-uv",
 ]
