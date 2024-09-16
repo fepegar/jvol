@@ -86,6 +86,7 @@ jobs:
           - py310
           - py311
           - py312
+          - py313
           - types
           - lint
           - format
@@ -102,10 +103,10 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install tox-uv
-        run: uv pip install tox-uv
+        run: uv pip install --system tox-uv
 
       - name: Install self
-        run: uv pip install jvol@.
+        run: uv pip install --system jvol@.
 
       - name: Run check for ${{ matrix.tox_env }}
         run: tox -v -e ${{ matrix.tox_env }}
