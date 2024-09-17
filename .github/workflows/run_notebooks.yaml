@@ -1,0 +1,40 @@
+name: Run notebooks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  run-notebooks:
+    strategy:
+      matrix:
+        notebook:
+          - getting-started
+          - encoding
+          - decoding
+          - compression
+          - file-format
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: pip install jupyter
+
+      - name: Run "${{ matrix.notebook }}" notebook
+        run: jupyter execute docs/${{ matrix.notebook }}.ipynb
