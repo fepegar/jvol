@@ -39,19 +39,19 @@ jobs:
             mkdocs-material-
 
       - name: Install dependencies
-        run: uv pip install --system ".[docs]"
+        run: uv pip install ".[docs]"
 
       - name: Execute notebooks if on main
         if: github.ref == 'refs/heads/main'
         run: |
-          uv pip install --system papermill
+          uv pip install papermill
           bash scripts/docs/run_notebooks.sh
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
         run: |
           mkdocs build
-          uv pip install --system smokeshow
+          uv pip install smokeshow
           smokeshow upload site
 
       - name: Build and deploy to GitHub Pages
