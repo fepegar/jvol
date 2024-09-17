@@ -1,12 +1,8 @@
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "jvol"
 version = "0.1.0"
+description = "JPEG compression for 3D medical images."
 requires-python = ">=3.10"
-
 dependencies = [
     "einops",
     "humanize",
@@ -28,15 +24,9 @@ docs = [
     "mkdocs-typer",
     "mkdocstrings[python]",
 ]
-
 dev = [
-    "jvol[docs]",
     "pre-commit",
     "tox-uv",
-]
-
-all = [
-    "jvol[dev]",
 ]
 
 [project.scripts]
@@ -44,3 +34,7 @@ jvol = "jvol.cli.convert:app"
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
