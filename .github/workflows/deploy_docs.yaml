@@ -1,4 +1,4 @@
-name: Deploy documentation
+name: Docs
 
 on:
   push:
@@ -29,19 +29,23 @@ jobs:
           restore-keys: |
             mkdocs-material-
 
-      - name: Install dependencies
-        run: pip install ".[docs]"
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-      - name: Execute notebooks
+      - name: Install dependencies
+        run: uv pip install --system ".[docs]"
+
+      - name: Execute notebooks if on main
+        if: github.ref == 'refs/heads/main'
         run: |
-          pip install papermill
+          uv pip install --system papermill
           bash scripts/docs/run_notebooks.sh
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
         run: |
           mkdocs build
-          pip install smokeshow
+          uv pip install --system smokeshow
           smokeshow upload site
 
       - name: Build and deploy to GitHub Pages
