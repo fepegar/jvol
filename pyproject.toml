@@ -44,7 +44,3 @@ jvol = "jvol.cli.convert:app"
 
 [tool.ruff.lint.isort]
 force-single-line = true
-
-[tool.pyright]
-venvPath = "."
-venv = ".venv"

@@ -13,69 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # test:
-  #   name: test ${{ matrix.py }} on ${{ matrix.os }}
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       py:
-  #         - "3.13"
-  #         - "3.12"
-  #         - "3.11"
-  #         - "3.10"
-  #       os:
-  #         - ubuntu-latest
-  #         - windows-latest
-  #         - macos-latest
-  #   steps:
-  #     - name: Set up Python for tox
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.12"
-
-  #     - uses: actions/checkout@v4
-
-  #     - name: Set up Python ${{ matrix.py }} on ${{ matrix.os }}
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ matrix.py }}
-  #         allow-prereleases: true
-
-  #     - name: Create and activate a virtual environment (Windows)
-  #       if: ${{ runner.os == 'Windows' }}
-  #       run: |
-  #         irm https://astral.sh/uv/install.ps1 | iex
-  #         uv venv .venv
-  #         "VIRTUAL_ENV=.venv" | Out-File -FilePath $env:GITHUB_ENV -Append
-  #         "$PWD/.venv/Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
-
-  #     - name: Create and activate a virtual environment (Unix)
-  #       if: ${{ runner.os != 'Windows' }}
-  #       run: |
-  #         curl -LsSf https://astral.sh/uv/install.sh | sh
-  #         uv venv .venv
-  #         echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
-  #         echo "$PWD/.venv/bin" >> $GITHUB_PATH
-
-  #     - name: Install tox-uv
-  #       run: uv pip install tox-uv
-
-  #     # - name: Install self
-  #     #   run: uv pip install jvol@.
-
-  #     - name: Setup python for test ${{ matrix.py }}
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ matrix.py }}
-  #         allow-prereleases: true
-
-  #     - name: setup test suite
-  #       run: tox run -vv --notest --skip-missing-interpreters false
-
-  #     - name: run test suite
-  #       run: tox run --skip-pkg-install
-
   check:
     name: tox env ${{ matrix.tox_env }}
     runs-on: ubuntu-latest
@@ -93,22 +30,29 @@ jobs:
           - format
           - complexity
           - docs
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: pyproject.toml
-
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
 
-      - name: Install tox-uv
-        run: uv pip install --system tox-uv
+      - name: Set up Python
+        run: uv python install
+
+      - name: Create and activate virtual environment and
+        run: |
+          uv venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Install self
-        run: uv pip install --system jvol@.
+        run: uv sync
 
-      - name: Run check for ${{ matrix.tox_env }}
-        run: tox -e ${{ matrix.tox_env }}
+      - name: Install tox-uv
+        run: uv pip install tox-uv
+
+      - name: Run check for tox env "${{ matrix.tox_env }}"
+        run: uv run tox -e ${{ matrix.tox_env }}
