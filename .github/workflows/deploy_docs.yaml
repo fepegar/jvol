@@ -15,9 +15,17 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install
+
+      - name: Create and activate virtual environment and
+        run: |
+          uv venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
