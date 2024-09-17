@@ -13,10 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: pyproject.toml
+        run: uv python install
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
@@ -28,9 +29,6 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
 
       - name: Install dependencies
         run: uv pip install --system ".[docs]"
