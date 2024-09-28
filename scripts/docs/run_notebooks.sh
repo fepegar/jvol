@@ -1,6 +1,6 @@
 set -e
 
-# source .venv/bin/activate
+source .venv/bin/activate
 jupyter_workdir="jupyter_temp"
 mkdir -p $jupyter_workdir
 cd $jupyter_workdir
