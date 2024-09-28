@@ -53,7 +53,7 @@ jobs:
       - name: Execute notebooks if on main
         # if: github.ref == 'refs/heads/main'
         run: |
-          uv install papermill
+          uv pip install papermill
           bash scripts/docs/run_notebooks.sh
 
       - name: Build and deploy to smokeshow
