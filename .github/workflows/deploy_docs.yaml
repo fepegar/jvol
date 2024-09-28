@@ -55,7 +55,7 @@ jobs:
         # if: github.ref == 'refs/heads/main'
         run: |
           uv pip install jupyter
-          for notebook in $(ls ../docs/*.ipynb)
+          for notebook in $(ls docs/*.ipynb)
           do
               echo $notebook
               jupyter execute $notebook
