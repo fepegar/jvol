@@ -55,7 +55,11 @@ jobs:
         # if: github.ref == 'refs/heads/main'
         run: |
           uv pip install jupyter
-          bash scripts/docs/run_notebooks.sh
+          for notebook in $(ls ../docs/*.ipynb)
+          do
+              echo $notebook
+              jupyter execute $notebook
+          done
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
