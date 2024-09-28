@@ -1,4 +1,5 @@
 name: Check
+
 on:
   workflow_dispatch:
   push:
@@ -11,6 +12,9 @@ on:
 concurrency:
   group: check-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1
 
 jobs:
   check:

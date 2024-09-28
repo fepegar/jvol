@@ -1,3 +1,5 @@
+set -e
+
 papermill_workdir="papermill_temp"
 mkdir $papermill_workdir
 cd $papermill_workdir
@@ -5,7 +7,7 @@ cd $papermill_workdir
 for notebook in $(ls ../docs/*.ipynb)
 do
     echo $notebook
-    papermill $notebook $notebook
+    uv run papermill $notebook $notebook
 done
 
 cd ..
