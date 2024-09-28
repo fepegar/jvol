@@ -16,6 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "ipywidgets",
+    "matplotlib",
     "mkdocs-gen-files",
     "mkdocs-jupyter",
     "mkdocs-literate-nav",
