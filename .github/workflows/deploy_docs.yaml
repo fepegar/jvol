@@ -54,7 +54,7 @@ jobs:
       - name: Execute notebooks if on main
         # if: github.ref == 'refs/heads/main'
         run: |
-          uv pip install papermill
+          uv pip install jupyter
           bash scripts/docs/run_notebooks.sh
 
       - name: Build and deploy to smokeshow

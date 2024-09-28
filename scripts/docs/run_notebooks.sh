@@ -1,15 +1,15 @@
 set -e
 
 # source .venv/bin/activate
-papermill_workdir="papermill_temp"
-mkdir -p $papermill_workdir
-cd $papermill_workdir
+jupyter_workdir="jupyter_temp"
+mkdir -p $jupyter_workdir
+cd $jupyter_workdir
 
 for notebook in $(ls ../docs/*.ipynb)
 do
     echo $notebook
-    papermill $notebook $notebook -k python3
+    jupyter execute $notebook
 done
 
 cd ..
-rm -r $papermill_workdir
+rm -r $jupyter_workdir
