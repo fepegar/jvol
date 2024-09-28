@@ -27,8 +27,14 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Python
-        run: uv python install ${{ matrix.python }}
+      - name: Set up Python
+        run: uv python install
+
+      - name: Create and activate virtual environment and
+        run: |
+          uv venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
@@ -42,19 +48,19 @@ jobs:
             mkdocs-material-
 
       - name: Install dependencies
-        run: uv pip install --system ".[docs]"
+        run: uv pip install ".[docs]"
 
       - name: Execute notebooks if on main
         if: github.ref == 'refs/heads/main'
         run: |
-          uv tool install papermill
+          uv install papermill
           bash scripts/docs/run_notebooks.sh
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
         run: |
           mkdocs build
-          uv pip install --system smokeshow
+          uv pip install smokeshow
           smokeshow upload site
 
       - name: Build and deploy to GitHub Pages
