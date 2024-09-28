@@ -33,8 +33,9 @@ jobs:
       - name: Create and activate virtual environment and
         run: |
           uv venv
-          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
-          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+          venv_path=$PWD/.venv
+          echo "VIRTUAL_ENV=$venv_path" >> $GITHUB_ENV
+          echo "$venv_path/bin" >> $GITHUB_PATH
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
