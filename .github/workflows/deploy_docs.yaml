@@ -60,9 +60,12 @@ jobs:
               echo $notebook
               jupyter execute $notebook
           done
-          find . -name "*.nii" -type f -delete
-          find . -name "*.nii.gz" -type f -delete
+
+      - name: Clean up any large files
+        run: |
+          find . -name "*.nii*" -type f -delete
           find . -name "*.jvol" -type f -delete
+          find . -name "*.zip" -type f -delete
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
