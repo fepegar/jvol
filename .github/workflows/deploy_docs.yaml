@@ -52,7 +52,6 @@ jobs:
         run: uv pip install ".[docs]"
 
       - name: Execute notebooks if on main
-        # if: github.ref == 'refs/heads/main'
         run: |
           uv pip install jupyter
           for notebook in $(ls docs/*.ipynb)
