@@ -58,7 +58,7 @@ jobs:
           for notebook in $(ls docs/*.ipynb)
           do
               echo $notebook
-              jupyter execute $notebook
+              jupyter execute --inplace $notebook
           done
 
       - name: Clean up any large files
