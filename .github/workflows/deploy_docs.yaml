@@ -6,6 +6,13 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,10 +20,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v2
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         run: uv python install
@@ -24,8 +33,9 @@ jobs:
       - name: Create and activate virtual environment and
         run: |
           uv venv
-          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
-          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+          venv_path=$PWD/.venv
+          echo "VIRTUAL_ENV=$venv_path" >> $GITHUB_ENV
+          echo "$venv_path/bin" >> $GITHUB_PATH
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
@@ -42,10 +52,19 @@ jobs:
         run: uv pip install ".[docs]"
 
       - name: Execute notebooks if on main
-        if: github.ref == 'refs/heads/main'
         run: |
-          uv pip install papermill
-          bash scripts/docs/run_notebooks.sh
+          uv pip install jupyter
+          for notebook in $(ls docs/*.ipynb)
+          do
+              echo $notebook
+              jupyter execute --inplace $notebook
+          done
+
+      - name: Clean up any large files
+        run: |
+          find . -name "*.nii*" -type f -delete
+          find . -name "*.jvol" -type f -delete
+          find . -name "*.zip" -type f -delete
 
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'

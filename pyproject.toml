@@ -16,6 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "ipywidgets",
+    "matplotlib",
     "mkdocs-gen-files",
     "mkdocs-jupyter",
     "mkdocs-literate-nav",
@@ -23,6 +24,7 @@ docs = [
     "mkdocs-section-index",
     "mkdocs-typer",
     "mkdocstrings[python]",
+    "torchio",
 ]
 dev = [
     "pre-commit",
