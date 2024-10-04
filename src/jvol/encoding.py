@@ -144,7 +144,7 @@ def pad_array(
             needs_padding = True
     if needs_padding:
         logger.info(f"Array with shape {array.shape} needs padding: {pad_width}")
-    padded_array = np.pad(array, pad_width)
+    padded_array = np.pad(array, pad_width, mode="reflect")
     logger.info(f"Padded array shape: {padded_array.shape}")
     return padded_array
 

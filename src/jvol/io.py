@@ -5,9 +5,11 @@ import itk
 import numpy as np
 import numpy.typing as npt
 
+from .casting import to_min_scalar_type
 from .decoding import decode_array
 from .encoding import encode_array
 from .encoding import get_quantization_table
+from .huffman import HuffmanCoding
 from .transforms import create_ijk_to_ras_from_itk_image
 from .transforms import get_itk_metadata_from_ijk_to_ras
 
@@ -17,8 +19,13 @@ class FormatKeys(str, enum.Enum):
     QUANTIZATION_BLOCK = "quantization_block"
     DC_RLE_VALUES = "dc_rle_values"
     DC_RLE_COUNTS = "dc_rle_counts"
-    AC_RLE_VALUES = "ac_rle_values"
-    AC_RLE_COUNTS = "ac_rle_counts"
+    AC_RLE_VALUES = "ac_rle_values"  # to be replaced with Huffman encoding
+    AC_RLE_COUNTS = "ac_rle_counts"  # to be replaced with Huffman encoding
+    AC_HUFFMAN_EOF_SYMBOL = "ac_huffman_eof_symbol"
+    AC_HUFFMAN_SYMBOLS = "ac_huffman_symbols"
+    AC_HUFFMAN_BITS = "ac_huffman_bits"
+    AC_HUFFMAN_VALUES = "ac_huffman_values"
+    AC_HUFFMAN_ENCODING = "ac_huffman_encoding"
     DTYPE = "dtype"
     INTERCEPT = "intercept"
     SLOPE = "slope"
@@ -75,42 +82,50 @@ def save_jvol(
         quantization_table,
     )
 
-    dc_rle_values = dc_rle_values.astype(np.min_scalar_type(dc_rle_values))
-    dc_rle_counts = dc_rle_counts.astype(np.min_scalar_type(dc_rle_counts))
-    ac_rle_values = ac_rle_values.astype(np.min_scalar_type(ac_rle_values))
-    ac_rle_counts = ac_rle_counts.astype(np.min_scalar_type(ac_rle_counts))
+    huffman = HuffmanCoding.from_rle(ac_rle_values, ac_rle_counts)
 
     save_dict = {
         FormatKeys.IJK_TO_RAS.value: ijk_to_ras[:3],
         FormatKeys.QUANTIZATION_BLOCK.value: quantization_table,
-        FormatKeys.DC_RLE_VALUES.value: dc_rle_values,
+        FormatKeys.DC_RLE_VALUES.value: to_min_scalar_type(dc_rle_values),
         FormatKeys.DC_RLE_COUNTS.value: dc_rle_counts,
-        FormatKeys.AC_RLE_VALUES.value: ac_rle_values,
-        FormatKeys.AC_RLE_COUNTS.value: ac_rle_counts,
         FormatKeys.DTYPE.value: np.empty((), dtype=dtype),
         FormatKeys.INTERCEPT.value: intercept,
         FormatKeys.SLOPE.value: slope,
         FormatKeys.SHAPE.value: np.array(array.shape, dtype=np.uint16),
+        "huffman_eof_symbol": huffman.eof_symbol,
+        "huffman_symbols_values": huffman.symbols_values,
+        "huffman_symbols_counts": huffman.symbols_counts,
+        "huffman_bitsizes": huffman.bitsizes,
+        "huffman_values": huffman.values,
+        "huffman_data": huffman.data,
     }
 
     with open(path, "wb") as f:
-        np.savez_compressed(f, **save_dict)
+        np.savez(f, **save_dict)
 
 
 def open_jvol(path: Path) -> tuple[np.ndarray, np.ndarray]:
     loaded = np.load(path)
     ijk_to_ras = fill_ijk_to_ras(loaded[FormatKeys.IJK_TO_RAS.value])
     quantization_block = loaded[FormatKeys.QUANTIZATION_BLOCK.value]
+    huffman_coding = HuffmanCoding(
+        data=loaded["huffman_data"],
+        symbols_values=loaded["huffman_symbols_values"],
+        symbols_counts=loaded["huffman_symbols_counts"],
+        bitsizes=loaded["huffman_bitsizes"],
+        values=loaded["huffman_values"],
+        eof_symbol=loaded["huffman_eof_symbol"],
+    )
     array = decode_array(
         dc_rle_values=loaded[FormatKeys.DC_RLE_VALUES],
         dc_rle_counts=loaded[FormatKeys.DC_RLE_COUNTS],
-        ac_rle_values=loaded[FormatKeys.AC_RLE_VALUES],
-        ac_rle_counts=loaded[FormatKeys.AC_RLE_COUNTS],
         quantization_block=quantization_block,
         target_shape=loaded[FormatKeys.SHAPE],
         intercept=loaded[FormatKeys.INTERCEPT],
         slope=loaded[FormatKeys.SLOPE],
         dtype=loaded[FormatKeys.DTYPE].dtype,
+        huffman_coding=huffman_coding,
     )
     return array, ijk_to_ras
 
