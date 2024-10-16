@@ -27,7 +27,7 @@ docs = [
     "torchio",
 ]
 dev = [
-    "pre-commit",
+    "pre-commit-uv",
     "tox-uv",
 ]
 
