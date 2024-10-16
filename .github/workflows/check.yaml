@@ -46,7 +46,7 @@ jobs:
       - name: Set up Python
         run: uv python install
 
-      - name: Create and activate virtual environment and
+      - name: Create and activate virtual environment
         run: |
           uv venv
           echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
