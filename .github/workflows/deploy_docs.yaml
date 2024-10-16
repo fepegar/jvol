@@ -28,7 +28,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        run: uv python install
+        run: uv python install 3.12
 
       - name: Create and activate virtual environment and
         run: |
