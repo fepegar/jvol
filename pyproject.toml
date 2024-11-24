@@ -13,7 +13,11 @@ dependencies = [
     "typer",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
+dev = [
+    "pre-commit-uv",
+    "tox-uv",
+]
 docs = [
     "ipywidgets",
     "matplotlib",
@@ -25,10 +29,6 @@ docs = [
     "mkdocs-typer",
     "mkdocstrings[python]",
     "torchio",
-]
-dev = [
-    "pre-commit-uv",
-    "tox-uv",
 ]
 
 [project.scripts]
