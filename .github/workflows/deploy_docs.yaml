@@ -25,17 +25,6 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "pyproject.toml"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Create and activate virtual environment and
-        run: |
-          uv venv
-          venv_path=$PWD/.venv
-          echo "VIRTUAL_ENV=$venv_path" >> $GITHUB_ENV
-          echo "$venv_path/bin" >> $GITHUB_PATH
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
@@ -48,16 +37,12 @@ jobs:
           restore-keys: |
             mkdocs-material-
 
-      - name: Install dependencies
-        run: uv pip install ".[docs]"
-
       - name: Execute notebooks if on main
         run: |
-          uv pip install jupyter
           for notebook in $(ls docs/*.ipynb)
           do
               echo $notebook
-              jupyter execute --inplace $notebook
+              uv run --group docs -- jupyter execute --inplace $notebook
           done
 
       - name: Clean up any large files
@@ -69,10 +54,9 @@ jobs:
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
         run: |
-          mkdocs build
-          uv pip install smokeshow
-          smokeshow upload site
+          uv run --group docs -- mkdocs build
+          uvx smokeshow upload site
 
       - name: Build and deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
-        run: mkdocs gh-deploy --force
+        run: uv run --group docs -- mkdocs gh-deploy --force
