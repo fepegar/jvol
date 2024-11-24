@@ -42,7 +42,7 @@ jobs:
           for notebook in $(ls docs/*.ipynb)
           do
               echo $notebook
-              uv run --extra docs -- jupyter execute --inplace $notebook
+              uv run --group docs -- jupyter execute --inplace $notebook
           done
 
       - name: Clean up any large files
@@ -54,9 +54,9 @@ jobs:
       - name: Build and deploy to smokeshow
         if: github.ref != 'refs/heads/main'
         run: |
-          uv run --extra docs -- mkdocs build
+          uv run --group docs -- mkdocs build
           uvx smokeshow upload site
 
       - name: Build and deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
-        run: uv run --extra docs -- mkdocs gh-deploy --force
+        run: uv run --group docs -- mkdocs gh-deploy --force
