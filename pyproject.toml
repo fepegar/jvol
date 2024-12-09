@@ -14,10 +14,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "pre-commit-uv",
-    "tox-uv",
-]
+dev = ["pre-commit-uv", "tox-uv"]
 docs = [
     "ipywidgets",
     "matplotlib",
@@ -33,6 +30,10 @@ docs = [
 
 [project.scripts]
 jvol = "jvol.cli.convert:app"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
 
 [tool.ruff.lint.isort]
 force-single-line = true
