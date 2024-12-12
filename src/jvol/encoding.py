@@ -60,14 +60,15 @@ def split_into_blocks(
     array: npt.NDArray[DType],
     block_shape: TypeShapeBlockNumpy,
 ) -> npt.NDArray[DType]:
-    block_shape = block_shape.tolist()
+    block_shape_list = block_shape.tolist()
     # This assumes the array has been padded so the shape is divisible by block size
+    assert isinstance(block_shape_list, list)
     blocks = rearrange(
         array,
         "(i1 i2) (j1 j2) (k1 k2) -> (i1 j1 k1) i2 j2 k2",
-        i2=block_shape[0],
-        j2=block_shape[1],
-        k2=block_shape[2],
+        i2=block_shape_list[0],
+        j2=block_shape_list[1],
+        k2=block_shape_list[2],
     )
     return blocks
 
@@ -117,7 +118,8 @@ def run_length_encode(
     num_symbols = len(sequence)
     y = sequence[1:] != sequence[:-1]  # pairwise unequal (string safe)
     indices = np.append(
-        np.where(y), num_symbols - 1
+        np.where(y),  # type: ignore[reportArgumentType]
+        num_symbols - 1,
     )  # must include last element position
     counts = np.diff(np.append(-1, indices))  # run lengths
     # p = np.cumsum(np.append(0, z))[:-1]  # positions

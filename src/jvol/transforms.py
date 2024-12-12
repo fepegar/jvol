@@ -11,7 +11,7 @@ def create_ijk_to_ras_from_itk_image(image) -> npt.NDArray[np.float64]:
     )
     lps_to_ras = np.diag((-1, -1, 1, 1))
     ijk_to_ras = lps_to_ras @ ijk_to_lps
-    return ijk_to_ras
+    return ijk_to_ras.astype(np.float64)
 
 
 def get_itk_metadata_from_ijk_to_ras(ijk_to_ras: npt.NDArray[np.float64]):
