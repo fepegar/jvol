@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "JPEG compression for 3D medical images."
 requires-python = ">=3.10"
 dependencies = [
+    "dahuffman @ git+https://github.com/soxofaan/dahuffman.git@main",
     "einops",
     "humanize",
     "itk",
