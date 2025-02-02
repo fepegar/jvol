@@ -14,7 +14,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit-uv", "tox-uv"]
+dev = [
+    "pre-commit-uv",
+    "pyright",
+    "tox-uv",
+]
 docs = [
     "ipywidgets",
     "matplotlib",
@@ -26,6 +30,10 @@ docs = [
     "mkdocs-typer",
     "mkdocstrings[python]",
     "torchio",
+]
+quality = [
+    "pyright",
+    "ruff",
 ]
 
 [project.scripts]
