@@ -15,25 +15,25 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.391
+    rev: v1.1.401
     hooks:
       - id: pyright
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         args: [--py310-plus]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+    rev: v0.11.12
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
+    rev: v1.7.7
     hooks:
       - id: docformatter
         args: ["--in-place", "--config", "./pyproject.toml"]
