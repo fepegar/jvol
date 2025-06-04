@@ -14,7 +14,13 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit-uv", "tox-uv"]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.5",
+    "pre-commit-uv",
+    "tox-uv",
+    "ty>=0.0.1a8",
+]
 docs = [
     "ipywidgets",
     "matplotlib",
