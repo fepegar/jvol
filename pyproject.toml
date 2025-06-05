@@ -6,7 +6,7 @@ requires-python = ">=3.10"
 dependencies = [
     "einops",
     "humanize",
-    "itk",
+    "itk-io",
     "loguru",
     "scipy",
     "transforms3d",
@@ -14,7 +14,12 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit-uv", "tox-uv"]
+dev = [
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.5",
+    "pre-commit-uv",
+    "tox-uv",
+]
 docs = [
     "ipywidgets",
     "matplotlib",
