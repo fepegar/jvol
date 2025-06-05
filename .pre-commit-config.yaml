@@ -13,7 +13,7 @@ repos:
         args: [--unsafe] # https://github.com/pre-commit/pre-commit-hooks/issues/701#issuecomment-990043558
       - id: end-of-file-fixer
       - id: trailing-whitespace
-      
+
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.20.0
     hooks:
